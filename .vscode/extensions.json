@@ -1,0 +1,10 @@
+{
+    "recommendations": [
+        "angular.ng-template",
+        "johnpapa.angular2",
+        "natewallace.angular2-inline",
+        "eamodio.gitlens",
+        "esbenp.prettier-vscode",
+        "ms-vscode.vscode-typescript-tslint-plugin"
+    ]
+}
