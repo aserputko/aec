@@ -3,7 +3,9 @@ export interface User {
     name: string;
     username: string;
     email: string;
-    role: string;
+    role: UserRole;
     phone: string;
     website: string;
 }
+
+export type UserRole = 'Admin' | 'User';

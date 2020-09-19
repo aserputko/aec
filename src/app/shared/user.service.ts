@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { User } from './user';
+import { User, UserRole } from './user';
 
 @Injectable({
     providedIn: 'root',
@@ -123,5 +123,20 @@ export class UserService {
 
     sortDirection(direction: string): void {
         this.sortDirectionSource.next(direction);
+    }
+
+    addUser(username: string, name: string, role: UserRole): void {
+        const id = Math.floor(Math.random() * 6 + 10);
+        const newUser: User = {
+            id,
+            name,
+            username,
+            email: '',
+            role,
+            phone: '',
+            website: '',
+        };
+        const allUsers = this.usersSource.getValue();
+        this.usersSource.next([newUser, ...allUsers]);
     }
 }

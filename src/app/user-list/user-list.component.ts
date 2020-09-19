@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
-import { User } from '../shared/user';
+import { User, UserRole } from '../shared/user';
 import { UserService } from '../shared/user.service';
 
 @Component({
@@ -8,7 +8,7 @@ import { UserService } from '../shared/user.service';
     template: `
         <h2>User List App</h2>
 
-        <div class="aec-controls">
+        <div class="aec-row">
             <mat-form-field appearance="outline">
                 <mat-label>Sort</mat-label>
                 <mat-select #sortSelect (selectionChange)="sort(sortSelect.value)">
@@ -23,6 +23,29 @@ import { UserService } from '../shared/user.service';
                 <mat-icon matSuffix (click)="search(searchInput.value)">search</mat-icon>
             </mat-form-field>
         </div>
+
+        <div class="aec-row">
+            <mat-form-field appearance="outline">
+                <mat-label>Username</mat-label>
+                <input matInput placeholder="Username" [(ngModel)]="username" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+                <mat-label>Name</mat-label>
+                <input matInput placeholder="Name" [(ngModel)]="name" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+                <mat-label>User Role</mat-label>
+                <mat-select [(ngModel)]="role">
+                    <mat-option value="Admin">Admin</mat-option>
+                    <mat-option value="User">User</mat-option>
+                </mat-select>
+            </mat-form-field>
+
+            <button mat-raised-button color="primary" (click)="addUser()">Add</button>
+        </div>
+
         <mat-selection-list #userList [style.width.%]="100">
             <mat-list-option *ngFor="let user of users$ | async; let index = index" [class.aec-bg-gray]="index % 2">
                 <div matLine>
@@ -50,7 +73,7 @@ import { UserService } from '../shared/user.service';
             .aec-bg-gray {
                 background-color: #efefef;
             }
-            .aec-controls {
+            .aec-row {
                 display: flex;
                 justify-content: space-between;
                 align-items: flex-start;
@@ -65,6 +88,10 @@ export class UserListComponent implements OnInit {
 
     users$: Observable<User[]>;
 
+    username: string;
+    name: string;
+    role: UserRole;
+
     ngOnInit(): void {
         this.users$ = this.userListService.getUsers();
     }
@@ -75,5 +102,9 @@ export class UserListComponent implements OnInit {
 
     search(value: string): void {
         this.userListService.search(value);
+    }
+
+    addUser(): void {
+        this.userListService.addUser(this.username, this.name, this.role);
     }
 }
