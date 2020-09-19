@@ -1,21 +1,13 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
-
-export interface User {
-    id: number;
-    name: string;
-    username: string;
-    email: string;
-    role: string;
-    phone: string;
-    website: string;
-}
+import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { User } from './user';
 
 @Injectable({
     providedIn: 'root',
 })
-export class UserListService {
-    private dataStorage = new BehaviorSubject<User[]>([
+export class UserService {
+    private usersSource = new BehaviorSubject<User[]>([
         {
             id: 1,
             name: 'Leanne Graham',
@@ -109,9 +101,27 @@ export class UserListService {
         },
     ]);
 
+    private searchQuerySource = new BehaviorSubject<string>('');
+    private sortDirectionSource = new BehaviorSubject<string>('0');
+
     constructor() {}
 
     getUsers(): Observable<User[]> {
-        return this.dataStorage.asObservable();
+        return combineLatest([this.usersSource, this.searchQuerySource, this.sortDirectionSource]).pipe(
+            map(([users, searchQuery, sortDirection]) => {
+                const direction = !!parseInt(sortDirection, 10) ? 1 : -1;
+                return users
+                    .filter((user) => user.name.toLowerCase().includes(searchQuery.toLowerCase()))
+                    .sort((a, b) => direction * (a.username > b.username ? 1 : -1));
+            }),
+        );
+    }
+
+    search(value: string): void {
+        this.searchQuerySource.next(value);
+    }
+
+    sortDirection(direction: string): void {
+        this.sortDirectionSource.next(direction);
     }
 }
