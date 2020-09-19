@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
+import { MatListOption } from '@angular/material/list';
 import { Observable } from 'rxjs';
 import { User, UserRole } from '../shared/user';
 import { UserService } from '../shared/user.service';
@@ -43,24 +44,50 @@ import { UserService } from '../shared/user.service';
                 </mat-select>
             </mat-form-field>
 
-            <button mat-raised-button color="primary" (click)="addUser()">Add</button>
+            <button mat-raised-button color="primary" class="aec-btn" (click)="addUser()">Add</button>
         </div>
 
-        <mat-selection-list #userList [style.width.%]="100">
-            <mat-list-option *ngFor="let user of users$ | async; let index = index" [class.aec-bg-gray]="index % 2">
-                <div matLine>
-                    <span class="aec-item">{{ user.username }}</span>
-                    <span class="aec-item">{{ user.name }}</span>
-                    <span *ngIf="user.role === 'Admin'" class="aec-item">{{ user.role }}</span>
+        <ng-container *ngIf="users$ | async as users">
+            <ng-container *ngIf="users.length > 0; then userListBlock; else emptyListBlock"> </ng-container>
+
+            <ng-template #userListBlock>
+                <mat-selection-list #userList [style.width.%]="100">
+                    <mat-list-option
+                        *ngFor="let user of users; let index = index"
+                        [class.aec-bg-gray]="index % 2"
+                        [value]="user"
+                    >
+                        <div matLine>
+                            <span class="aec-item">{{ user.username }}</span>
+                            <span class="aec-item">{{ user.name }}</span>
+                            <span *ngIf="user.role === 'Admin'" class="aec-item">{{ user.role }}</span>
+                        </div>
+                    </mat-list-option>
+                </mat-selection-list>
+
+                <div class="aec-row aec-align-items-center">
+                    <p>Options selected: {{ userList.selectedOptions.selected.length }}</p>
+                    <button
+                        mat-raised-button
+                        color="warn"
+                        class="aec-btn"
+                        (click)="removeUsers(userList.selectedOptions.selected)"
+                    >
+                        Remove
+                    </button>
                 </div>
-            </mat-list-option>
-        </mat-selection-list>
-        <p>Options selected: {{ userList.selectedOptions.selected.length }}</p>
+            </ng-template>
+
+            <ng-template #emptyListBlock>
+                <div class="aec-empty-list">No Users Found</div>
+            </ng-template>
+        </ng-container>
     `,
     styles: [
         `
             :host {
-                display: block;
+                display: flex;
+                flex-direction: column;
                 width: 100%;
             }
             h2 {
@@ -78,6 +105,22 @@ import { UserService } from '../shared/user.service';
                 justify-content: space-between;
                 align-items: flex-start;
                 margin-top: 20px;
+            }
+            .aec-align-items-center {
+                align-items: center;
+            }
+            .aec-btn {
+                height: 51px;
+                margin-top: 4px;
+                width: 100px;
+            }
+            .aec-empty-list {
+                height: 300px;
+                font-weight: bold;
+                font-size: 24px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
             }
         `,
     ],
@@ -106,5 +149,10 @@ export class UserListComponent implements OnInit {
 
     addUser(): void {
         this.userListService.addUser(this.username, this.name, this.role);
+    }
+
+    removeUsers(selectedOptions: MatListOption[]): void {
+        const userIds = selectedOptions.map((matListOption) => matListOption.value.id);
+        this.userListService.removeUsers(userIds);
     }
 }

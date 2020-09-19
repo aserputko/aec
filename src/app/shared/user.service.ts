@@ -139,4 +139,10 @@ export class UserService {
         const allUsers = this.usersSource.getValue();
         this.usersSource.next([newUser, ...allUsers]);
     }
+
+    removeUsers(ids: number[]): void {
+        const allUsers = this.usersSource.getValue();
+        const newAllUsers = allUsers.filter((user) => !ids.includes(user.id));
+        this.usersSource.next([...newAllUsers]);
+    }
 }
